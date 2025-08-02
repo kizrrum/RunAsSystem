@@ -1,3 +1,60 @@
+//! # Token Impersonation: Elevate to NT AUTHORITY\SYSTEM
+//!
+//! **Author**: Based on community research | Stealthy, no service creation  
+//! **Language**: Rust  
+//! **Target**: Windows x86_64  
+//!
+//! ## Description
+//!
+//! This binary demonstrates token impersonation to escalate privileges from
+//! an Administrator account to `NT AUTHORITY\SYSTEM` by:
+//!
+//! 1. Enabling `SeDebugPrivilege` to access system processes.
+//! 2. Finding `winlogon.exe` (running as SYSTEM) via process enumeration.
+//! 3. Opening its access token and duplicating it as a primary token.
+//! 4. Spawning a new process (e.g., `cmd.exe`) using `CreateProcessWithTokenW`.
+//!
+//! This technique is commonly used in post-exploitation frameworks (e.g., Mimikatz, Meterpreter)
+//! and does not require kernel exploits or service creation, making it stealthier than SCM-based methods.
+//!
+//! ## Usage
+//!
+//! ```cmd
+//! # Build
+//! cargo build --release
+//!
+//! # Run as Administrator
+//! .\target\release\runassystem.exe
+//! ```
+//!
+//! A new `cmd.exe` will start running as `NT AUTHORITY\SYSTEM`.
+//!
+//! ## Requirements
+//!
+//! - Administrator privileges (to enable `SeDebugPrivilege`)
+//! - Windows 7 or later
+//! - Rust toolchain (for compilation)
+//!
+//! ## Notes
+//!
+//! - Uses Microsoft's official [`windows-rs`](https://github.com/microsoft/windows-rs) crate.
+//! - Designed for educational and authorized security testing.
+//! - May be flagged by EDR/AV due to token manipulation APIs.
+//!
+
+use windows::{
+    core::*,
+    Win32::{
+        Foundation::*,
+        Security::*,
+        System::{
+            Diagnostics::ToolHelp::*,
+            Threading::*,
+        },
+    },
+};
+
+// ... остальной код
 use windows::{
     core::*,
     Win32::{
