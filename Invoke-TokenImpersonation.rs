@@ -42,6 +42,29 @@
 //! - May be flagged by EDR/AV due to token manipulation APIs.
 //!
 
+/// # Token Impersonation: Elevate to NT AUTHORITY\SYSTEM
+///
+/// ## How to build and run (Windows)
+///
+/// ```cmd
+/// # 1. Install Rust (one-time)
+/// curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+///
+/// # 2. Update PATH
+/// set PATH="%PATH%;%USERPROFILE%\.cargo\bin"
+///
+/// # 3. Build
+/// cargo build --release
+///
+/// # 4. Run AS ADMIN (right-click -> Run as administrator)
+/// .\target\release\runassystem.exe
+/// ```
+///
+/// ⚠️ Must be Administrator (elevated).  
+/// 🛑 May be blocked by AV/EDR.
+///
+
+
 use windows::{
     core::*,
     Win32::{
