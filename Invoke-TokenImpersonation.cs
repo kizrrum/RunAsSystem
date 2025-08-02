@@ -1,6 +1,6 @@
 /*
 .SYNOPSIS
-    ImpersonateAndRunSafe - Secure token impersonation and SYSTEM process launcher.
+    Token Impersonation: Elevate to NT AUTHORITY\SYSTEM by impersonating a SYSTEM process token.
 
 .DESCRIPTION
     This program elevates privileges to SYSTEM by duplicating the access token of a target
