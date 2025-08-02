@@ -1,63 +1,66 @@
 # RunAsSystem
 
-Run commands or get an interactive shell as **NT AUTHORITY\SYSTEM**  
-Simple, self-contained privilege escalation from Administrator to SYSTEM.
+> **"There’s more than one way to become SYSTEM."**
+
+Two distinct techniques to escalate from **Administrator → NT AUTHORITY\SYSTEM**:
+- 🔹 **Token Impersonation** — steal a SYSTEM token (C++, C#, PowerShell)
+- 🔹 **Service-based Execution** — abuse SCM to run code as SYSTEM (`run.cmd`, `run.ps1`)
+
+Choose your path. Both lead to the top.
+
+---
+
+## 🧩 Two Methods. One Goal.
+
+### 1. Token Impersonation (Advanced, stealthy)
+> *"I don’t run as SYSTEM — I become it."*
+
+Uses `SeDebugPrivilege` to:
+1. Find `winlogon.exe` (or similar SYSTEM process)
+2. Open its access token
+3. Duplicate it as a primary token
+4. Spawn a new process via `CreateProcessWithTokenW`
+
+✅ Runs as pure SYSTEM  
+✅ No service traces  
+❌ May be blocked by EDR (token manipulation)
+
+**Files:**
+- `Invoke-TokenImpersonation.cpp`
+- `Invoke-TokenImpersonation.cs`
+- `Invoke-TokenImpersonation.ps1`
+
+---
+
+### 2. Service-Based Execution (Simple, reliable)
+> *"Let Windows run my code for me — as SYSTEM."*
+
+Uses built-in `sc.exe` (Service Control) to:
+1. Create a temporary service
+2. Set its command to your payload
+3. Start it → runs as `NT AUTHORITY\SYSTEM`
+4. Delete itself
+
+✅ Works almost everywhere  
+✅ No direct API abuse  
+✅ Harder to block without breaking Windows  
+❌ Leaves logs (`Event ID 7045`, service creation)
+
+**Files:**
+- `run.cmd` — creates service, runs payload, cleans up
+- `run.ps1` — PowerShell version of the same
+
+> Example:  
+> ```cmd
+> sc create RunAsSystem binPath= "cmd /c whoami > C:\temp\out.txt" type= own type= interact
+> sc start RunAsSystem
+> sc delete RunAsSystem
+> ```
 
 ---
 
 ## 🚀 Quick Start
 
-1. **Run as Administrator**:  
-   Right-click on `run.cmd` → **"Run as administrator"**
-
-2. Confirm UAC prompt.
-
-3. You'll get an interactive PowerShell session running as:  
-   `NT AUTHORITY\SYSTEM`
-
----
-
-## 🔧 What You Can Change
-
-- **Target process** (default: `winlogon.exe`)  
-  → Edit the code to use `lsass.exe`, `services.exe`, etc.
-
-- **Launched command** (default: `powershell.exe`)  
-  → Change `cmdLine` in code to:
-    - `cmd.exe`  
-    - `C:\\temp\\reverse.exe`  
-    - `whoami /priv`
-
-- **Build type**  
-  → Console app (visible) or subsystem:windows (hidden)
-
----
-
-## 💥 How It Works
-
-1. Enables `SeDebugPrivilege` (needed to access system processes)  
-2. Finds PID of `winlogon.exe`  
-3. Opens its token (which runs as SYSTEM)  
-4. Duplicates token and spawns new process with it  
-5. Boom — you’re SYSTEM
-
----
-
-## ⚠️ Notes
-
-- Requires **Administrator rights**  
-- Works on Windows 7, 8, 10, 11, Server  
-- May be flagged by AV — this is **not a stealth tool**  
-- Built with `cl.exe` (Visual Studio or Build Tools)
-
----
-
-## 📂 Files
-
-- `Invoke-TokenImpersonation.cpp` — core logic (C++)  
-- `run.cmd` — builds and runs the exploit  
-- `resource.rc` — optional icon/version (if used)
-
----
-
-> 💀 You have the power. Use it wisely.
+### 🔹 Method 1: Token Impersonation (C++ — Recommended)
+```cmd
+run.cmd
