@@ -29,6 +29,7 @@ Uses `SeDebugPrivilege` to:
 - `Invoke-TokenImpersonation.cpp`
 - `Invoke-TokenImpersonation.cs`
 - `Invoke-TokenImpersonation.ps1`
+- `Invoke-TokenImpersonation.rs`
 
 ---
 
