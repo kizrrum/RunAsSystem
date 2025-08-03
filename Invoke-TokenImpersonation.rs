@@ -37,32 +37,53 @@
 //!
 //! ## Notes
 //!
-//! - Uses Microsoft's official [`windows-rs`](https://github.com/microsoft/windows-rs) crate.
-//! - Designed for educational and authorized security testing.
-//! - May be flagged by EDR/AV due to token manipulation APIs.
+//! # Token Impersonation: Elevate to NT AUTHORITY\SYSTEM
 //!
-
-/// # Token Impersonation: Elevate to NT AUTHORITY\SYSTEM
-///
-/// ## How to build and run (Windows)
-///
-/// ```cmd
-/// # 1. Install Rust (one-time)
-/// curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-///
-/// # 2. Update PATH
-/// set PATH="%PATH%;%USERPROFILE%\.cargo\bin"
-///
-/// # 3. Build
-/// cargo build --release
-///
-/// # 4. Run AS ADMIN (right-click -> Run as administrator)
-/// .\target\release\runassystem.exe
-/// ```
-///
-/// ⚠️ Must be Administrator (elevated).  
-/// 🛑 May be blocked by AV/EDR.
-///
+//! This binary escalates privileges from an Administrator account to `NT AUTHORITY\SYSTEM`
+//! by impersonating the token of `winlogon.exe` via `SeDebugPrivilege` and `CreateProcessWithTokenW`.
+//!
+//! ## How to Build and Run on Windows
+//!
+//! 1. **Install Rust** (one-time setup):
+//!    - Download `rustup-init.exe` from https://www.rust-lang.org/tools/install
+//!    - Run it and follow the prompts (press Enter to confirm defaults).
+//!
+//!    Alternatively, use PowerShell (as Administrator):
+//!    ```powershell
+//!    Invoke-WebRequest -Uri "https://win.rustup.rs/x86_64" -OutFile "$env:TEMP\rustup-init.exe"
+//!    Start-Process -FilePath "$env:TEMP\rustup-init.exe" -ArgumentList "-y" -Wait
+//!    ```
+//!
+//! 2. **Update PATH** (usually done automatically):
+//!    ```cmd
+//!    set PATH="%PATH%;%USERPROFILE%\.cargo\bin"
+//!    ```
+//!
+//! 3. **Build the project**:
+//!    ```cmd
+//!    cargo build --release
+//!    ```
+//!
+//! 4. **Run as Administrator** (required!):
+//!    - Right-click `.\target\release\runassystem.exe` → "Run as administrator"
+//!    - Or from elevated Command Prompt / PowerShell:
+//!      ```cmd
+//!      .\target\release\runassystem.exe
+//!      ```
+//!
+//! A new `cmd.exe` process will start running as `NT AUTHORITY\SYSTEM`.
+//!
+//! ## Requirements
+//! - Administrator privileges (to enable `SeDebugPrivilege`)
+//! - Windows 7 or later (x86_64)
+//! - Rust toolchain installed
+//!
+//! ## Notes
+//! - Uses the official `windows` crate for safe Win32 API access.
+//! - Designed for educational and authorized security testing.
+//! - May be flagged by AV/EDR due to token manipulation and privilege escalation patterns.
+//! - Ensure you have proper authorization before using in any environment.
+//!
 
 
 use windows::{
